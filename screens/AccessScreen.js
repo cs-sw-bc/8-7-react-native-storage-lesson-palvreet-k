@@ -13,6 +13,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-nativ
 // SecureStore uses a namespace import. Uncomment and complete the line below:
 // import * as SecureStore from '...';
 // ─────────────────────────────────────────────────────────────────────────────
+import * as SecureStore from 'expo-secure-store';
 
 const PASSCODE_KEY = 'group_passcode';
 
@@ -32,6 +33,14 @@ export default function AccessScreen() {
     // If a value exists → set isUnlocked to true, update statusMsg.
     // If no value exists → set isUnlocked to false, update statusMsg.
     // ───────────────────────────────────────────────────────────────────────
+    let result = await SecureStore.getItemAsync(PASSCODE_KEY);
+   if (result) {
+     setIsUnlocked(true);
+     setStatusMsg('Passcode found');
+   } else {
+    setIsUnlocked(false)
+    setStatusMsg('No values stored under that key.');
+  }
   };
 
   const handleSave = async () => {
@@ -41,6 +50,10 @@ export default function AccessScreen() {
     // Use SecureStore.setItemAsync().
     // Then set isUnlocked to true, update statusMsg, and clear the input.
     // ───────────────────────────────────────────────────────────────────────
+    await SecureStore.setItemAsync(PASSCODE_KEY, input);
+    setIsUnlocked(true);
+    setStatusMsg('Passcode Updated');
+    setInput('')
   };
 
   const handleClear = async () => {
@@ -49,6 +62,9 @@ export default function AccessScreen() {
     // Use SecureStore.deleteItemAsync().
     // Then set isUnlocked to false and update statusMsg.
     // ───────────────────────────────────────────────────────────────────────
+    await SecureStore.deleteItemAsync(PASSCODE_KEY)
+    setIsUnlocked(false);
+    setStatusMsg('No passcode stored')
   };
 
   return (

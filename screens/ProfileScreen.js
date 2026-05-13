@@ -12,13 +12,13 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-nativ
 // Uncomment and complete the line below:
 // import AsyncStorage from '...';
 // ─────────────────────────────────────────────────────────────────────────────
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const NAME_KEY = 'student_name';
 const GOAL_KEY = 'daily_goal';
 
 export default function ProfileScreen() {
-  const [name, setName]         = useState('');
-  const [goal, setGoal]         = useState('');
+  const [name, setName] = useState('');
+  const [goal, setGoal] = useState('');
   const [savedName, setSavedName] = useState('');
   const [savedGoal, setSavedGoal] = useState('');
 
@@ -33,6 +33,20 @@ export default function ProfileScreen() {
     // If values exist, update savedName and savedGoal.
     // Remember: getItem returns null if the key doesn't exist.
     // ───────────────────────────────────────────────────────────────────────
+    try {
+      const savedName = await AsyncStorage.getItem(NAME_KEY);
+      const savedGoal = await AsyncStorage.getItem(GOAL_KEY);
+      if (savedName !== null) {
+        // value previously stored
+        setSavedName(savedName);
+      }
+      if (savedGoal !== null){
+        setSavedGoal(savedGoal);
+      }
+    } catch (e) {
+      // error reading value
+      console.error(e);
+    }
   };
 
   const handleSave = async () => {
@@ -41,6 +55,16 @@ export default function ProfileScreen() {
     // Use AsyncStorage.setItem() for both NAME_KEY and GOAL_KEY.
     // Then update savedName and savedGoal so the UI refreshes.
     // ───────────────────────────────────────────────────────────────────────
+
+    try {
+      await AsyncStorage.setItem(NAME_KEY, name);
+      await AsyncStorage.setItem(GOAL_KEY, goal);
+      setSavedName(name);
+      setSavedGoal(goal);
+    } catch (e) {
+      // saving error
+      console.error(e);
+    }
   };
 
   const handleClear = async () => {
@@ -49,6 +73,19 @@ export default function ProfileScreen() {
     // Use AsyncStorage.removeItem() on NAME_KEY and GOAL_KEY.
     // Then clear savedName and savedGoal from state.
     // ───────────────────────────────────────────────────────────────────────
+
+    try {
+      await AsyncStorage.removeItem(NAME_KEY)
+      await AsyncStorage.removeItem(GOAL_KEY)
+      setGoal('')
+      setName('')
+      setSavedGoal('')
+      setSavedName('')
+    } catch (e) {
+      // remove error
+      console.error(e);
+    }
+   console.log('Done.')
   };
 
   return (
@@ -92,15 +129,15 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  container:       { flex: 1, padding: 24, backgroundColor: '#F2F4F7' },
-  title:           { fontSize: 22, fontWeight: 'bold', marginBottom: 20, color: '#1A1A2E' },
-  card:            { backgroundColor: '#fff', padding: 16, borderRadius: 12, marginBottom: 20, borderLeftWidth: 4, borderLeftColor: '#4A90D9' },
-  cardLabel:       { fontSize: 10, fontWeight: '700', color: '#999', letterSpacing: 1, marginBottom: 6 },
-  cardValue:       { fontSize: 18, fontWeight: 'bold', color: '#1A1A2E' },
-  cardSub:         { fontSize: 13, color: '#666', marginTop: 4 },
-  cardEmpty:       { fontSize: 14, color: '#aaa', fontStyle: 'italic' },
-  input:           { backgroundColor: '#fff', padding: 13, borderRadius: 10, marginBottom: 12, fontSize: 15, borderWidth: 1, borderColor: '#E0E0E0' },
-  button:          { backgroundColor: '#4A90D9', padding: 14, borderRadius: 10, alignItems: 'center', marginBottom: 10 },
+  container: { flex: 1, padding: 24, backgroundColor: '#F2F4F7' },
+  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 20, color: '#1A1A2E' },
+  card: { backgroundColor: '#fff', padding: 16, borderRadius: 12, marginBottom: 20, borderLeftWidth: 4, borderLeftColor: '#4A90D9' },
+  cardLabel: { fontSize: 10, fontWeight: '700', color: '#999', letterSpacing: 1, marginBottom: 6 },
+  cardValue: { fontSize: 18, fontWeight: 'bold', color: '#1A1A2E' },
+  cardSub: { fontSize: 13, color: '#666', marginTop: 4 },
+  cardEmpty: { fontSize: 14, color: '#aaa', fontStyle: 'italic' },
+  input: { backgroundColor: '#fff', padding: 13, borderRadius: 10, marginBottom: 12, fontSize: 15, borderWidth: 1, borderColor: '#E0E0E0' },
+  button: { backgroundColor: '#4A90D9', padding: 14, borderRadius: 10, alignItems: 'center', marginBottom: 10 },
   buttonSecondary: { backgroundColor: '#B0B0B0' },
-  buttonText:      { color: '#fff', fontWeight: 'bold', fontSize: 15 },
+  buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 15 },
 });

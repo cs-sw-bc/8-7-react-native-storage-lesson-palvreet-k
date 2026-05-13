@@ -11,13 +11,15 @@ import { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 
 // TODO 1: Uncomment the import below
-// import * as SQLite from 'expo-sqlite';
+import * as SQLite from 'expo-sqlite';
 
 // TODO 2: Create database using SQLite.openDatabaseSync('studybuddy.db')
 // and save it in a constant named 'db'
 
+const db = SQLite.openDatabaseSync('studybuddy.db')
+
 export default function SessionsScreen() {
-  const [subject, setSuject]    = useState('');
+  const [subject, setSuject] = useState('');
   const [duration, setDuration] = useState('');
   const [sessions, setSessions] = useState([]);
 
@@ -36,6 +38,10 @@ export default function SessionsScreen() {
     //
     // After creating the table, call loadSessions().
     // ───────────────────────────────────────────────────────────────────────
+     db.execSync(`
+        CREATE TABLE IF NOT EXISTS sessions (id INTEGER PRIMARY KEY NOT NULL, subject TEXT NOT NULL, duration TEXT NOT NULL);
+`);
+      loadSessions();
   };
 
   const loadSessions = () => {
@@ -44,6 +50,8 @@ export default function SessionsScreen() {
     // Use db.getAllSync() with a SELECT * FROM sessions statement.
     // Update the sessions state with the returned array.
     // ───────────────────────────────────────────────────────────────────────
+    const allRows =  db.getAllSync('SELECT * FROM sessions');
+    setSessions(allRows);
   };
 
   const handleAdd = () => {
@@ -55,6 +63,15 @@ export default function SessionsScreen() {
     // Pass subject and duration as parameterised values (use ? placeholders).
     // After inserting, clear both inputs and call loadSessions() to refresh the list.
     // ───────────────────────────────────────────────────────────────────────
+    db.runSync(
+      'INSERT INTO sessions (subject, duration) VALUES (?, ?)',
+      [subject, duration]
+    );
+
+    setSuject('');
+    setDuration('');
+
+    loadSessions();
   };
 
   return (
@@ -98,14 +115,14 @@ export default function SessionsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container:    { flex: 1, padding: 24, backgroundColor: '#F2F4F7' },
-  title:        { fontSize: 22, fontWeight: 'bold', marginBottom: 20, color: '#1A1A2E' },
-  input:        { backgroundColor: '#fff', padding: 13, borderRadius: 10, marginBottom: 12, fontSize: 15, borderWidth: 1, borderColor: '#E0E0E0' },
-  button:       { backgroundColor: '#4A90D9', padding: 14, borderRadius: 10, alignItems: 'center', marginBottom: 20 },
-  buttonText:   { color: '#fff', fontWeight: 'bold', fontSize: 15 },
+  container: { flex: 1, padding: 24, backgroundColor: '#F2F4F7' },
+  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 20, color: '#1A1A2E' },
+  input: { backgroundColor: '#fff', padding: 13, borderRadius: 10, marginBottom: 12, fontSize: 15, borderWidth: 1, borderColor: '#E0E0E0' },
+  button: { backgroundColor: '#4A90D9', padding: 14, borderRadius: 10, alignItems: 'center', marginBottom: 20 },
+  buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 15 },
   sectionLabel: { fontSize: 10, fontWeight: '700', color: '#999', letterSpacing: 1, marginBottom: 10 },
-  card:         { backgroundColor: '#fff', padding: 14, borderRadius: 10, marginBottom: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderLeftWidth: 4, borderLeftColor: '#4A90D9' },
-  cardSubject:  { fontSize: 15, fontWeight: 'bold', color: '#1A1A2E' },
+  card: { backgroundColor: '#fff', padding: 14, borderRadius: 10, marginBottom: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderLeftWidth: 4, borderLeftColor: '#4A90D9' },
+  cardSubject: { fontSize: 15, fontWeight: 'bold', color: '#1A1A2E' },
   cardDuration: { fontSize: 13, color: '#666' },
-  empty:        { textAlign: 'center', color: '#aaa', marginTop: 30, fontStyle: 'italic' },
+  empty: { textAlign: 'center', color: '#aaa', marginTop: 30, fontStyle: 'italic' },
 });

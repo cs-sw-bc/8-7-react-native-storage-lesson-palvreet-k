@@ -11,7 +11,7 @@ import { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 
 // TODO 1: Uncomment the import below
-// import { File, Paths } from 'expo-file-system';
+import { File, Paths } from 'expo-file-system';
 
 // TODO 2: Create a File reference for your notes file
 // ─────────────────────────────────────────────────────────────────────────────
@@ -19,7 +19,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-nativ
 // Paths.document is the safe directory your app can write to.
 // Uncomment the line below:
 //
-// const notesFile = new File(Paths.document, 'study-notes.txt');
+const notesFile = new File(Paths.document, 'study-notes.txt');
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function NotesScreen() {
@@ -38,6 +38,11 @@ export default function NotesScreen() {
     // If it exists, read its content using notesFile.textSync().
     // Update both notes and saved with the content.
     // ───────────────────────────────────────────────────────────────────────
+    if (notesFile.exists) {
+      const result = notesFile.textSync()
+      setNotes(result);
+      setSaved(result);
+}
   };
 
   const handleSave = () => {
@@ -47,6 +52,12 @@ export default function NotesScreen() {
     // Then write using notesFile.write(notes).
     // After saving, update saved and set lastSaved to new Date().toLocaleTimeString().
     // ───────────────────────────────────────────────────────────────────────
+    if(!notesFile.exists){
+      notesFile.create();
+    }
+      notesFile.write(notes);
+      setSaved(notes);
+      setLastSaved(new Date().toLocaleTimeString());
   };
 
   return (
